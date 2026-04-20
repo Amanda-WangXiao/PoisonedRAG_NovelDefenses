@@ -5,8 +5,8 @@ Based on the PoisonedRAG framework under a black-box setting, this repository de
 1. Security Score Defense  
 2. Semantic Consistency Verification Defense  
 
-![Example Image](https://github.com/Amanda-WangXiao/PoisonedRAG_NovelDefenses/blob/noveldefenses/pics/ASR_Threshold_NQ.pdf)
-![Example Image](https://github.com/Amanda-WangXiao/PoisonedRAG_NovelDefenses/blob/noveldefenses/pics/ASR_Semantic_Consistency_NQ.pdf)
+[Security Score Defense](https://github.com/Amanda-WangXiao/PoisonedRAG_NovelDefenses/blob/noveldefenses/pics/ASR_Threshold_NQ.pdf)
+[Semantic Consistency Verification Defense](https://github.com/Amanda-WangXiao/PoisonedRAG_NovelDefenses/blob/noveldefenses/pics/ASR_Semantic_Consistency_NQ.pdf)
 
 ## Original Paper & Git Repo  
 
