@@ -21,7 +21,7 @@ import argparse
 parser = argparse.ArgumentParser(description='test')
 
 parser.add_argument('--model_code', type=str, default="contriever")
-parser.add_argument('--score_function', type=str, default='dot', choices=['dot', 'cos_sim'])
+parser.add_argument('--score_function', type=str, default='dot')
 parser.add_argument('--top_k', type=int, default=100)
 parser.add_argument('--dataset', type=str, default="nq", help='BEIR dataset to evaluate')
 parser.add_argument('--split', type=str, default='test')
@@ -95,7 +95,7 @@ else:
 
 logging.info(f"model: {model.model}")
 
-retriever = EvaluateRetrieval(model, score_function=args.score_function, k_values=[args.top_k]) # "cos_sim"  or "dot" for dot-product
+retriever = EvaluateRetrieval(model, score_function=args.score_function, k_values=[args.top_k])
 results = retriever.retrieve(corpus, queries)
                                             
 logging.info("Printing results to %s"%(args.result_output))

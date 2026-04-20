@@ -29,12 +29,12 @@ class Model:
         os.environ['PYTHONHASHSEED'] = str(self.seed)
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
-        torch.cuda.manual_seed(self.seed)
-        torch.backends.cudnn.benchmark = False
-        torch.backends.cudnn.deterministic = True
-        # if you are using multi-GPU.
-        if len(self.gpus) > 1:
-            torch.cuda.manual_seed_all(self.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(self.seed)
+            torch.backends.cudnn.benchmark = False
+            torch.backends.cudnn.deterministic = True
+            if len(self.gpus) > 1:
+                torch.cuda.manual_seed_all(self.seed)
     
     def initialize_gpus(self):
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"

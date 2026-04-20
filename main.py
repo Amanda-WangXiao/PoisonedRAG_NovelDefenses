@@ -32,7 +32,7 @@ def parse_args():
     # attack
     parser.add_argument('--attack_method', type=str, default='LM_targeted')
     parser.add_argument('--adv_per_query', type=int, default=5, help='The number of adv texts for each target query.')
-    parser.add_argument('--score_function', type=str, default='dot', choices=['dot', 'cos_sim'])
+    parser.add_argument('--score_function', type=str, default='dot')
     parser.add_argument('--repeat_times', type=int, default=10, help='repeat several times to compute average')
     parser.add_argument('--M', type=int, default=10, help='one of our parameters, the number of target queries')
     parser.add_argument('--seed', type=int, default=12, help='Random seed')
@@ -45,8 +45,13 @@ def parse_args():
 
 def main():
     args = parse_args()
-    torch.cuda.set_device(args.gpu_id)
-    device = 'cuda'
+    if torch.cuda.is_available():
+        torch.cuda.set_device(args.gpu_id)
+        device = 'cuda'
+    elif torch.backends.mps.is_available():
+        device = 'mps'
+    else:
+        device = 'cpu'
     setup_seeds(args.seed)
     if args.model_config_path == None:
         args.model_config_path = f'model_configs/{args.model_name}_config.json'
@@ -61,8 +66,6 @@ def main():
     incorrect_answers = list(incorrect_answers.values())
 
     orig_beir_path = f"results/beir_results/{args.eval_dataset}-{args.eval_model_code}.json"
-    if args.score_function == 'cos_sim':
-        orig_beir_path = f"results/beir_results/{args.eval_dataset}-{args.eval_model_code}-cos.json"
     with open(orig_beir_path, 'r') as f:
         results = json.load(f)
     # assert len(qrels) <= len(results)
@@ -107,7 +110,7 @@ def main():
             adv_text_list = sum(adv_text_groups, []) # convert 2D array to 1D array
 
             adv_input = tokenizer(adv_text_list, padding=True, truncation=True, return_tensors="pt")
-            adv_input = {key: value.cuda() for key, value in adv_input.items()}
+            adv_input = {key: value.to(device) for key, value in adv_input.items()}
             with torch.no_grad():
                 adv_embs = get_emb(c_model, adv_input)        
                       
@@ -143,16 +146,13 @@ def main():
 
                 if args.attack_method not in [None, 'None']: 
                     query_input = tokenizer(question, padding=True, truncation=True, return_tensors="pt")
-                    query_input = {key: value.cuda() for key, value in query_input.items()}
+                    query_input = {key: value.to(device) for key, value in query_input.items()}
                     with torch.no_grad():
                         query_emb = get_emb(model, query_input) 
                     for j in range(len(adv_text_list)):
                         adv_emb = adv_embs[j, :].unsqueeze(0) 
-                        # similarity     
-                        if args.score_function == 'dot':
-                            adv_sim = torch.mm(adv_emb, query_emb.T).cpu().item()
-                        elif args.score_function == 'cos_sim':
-                            adv_sim = torch.cosine_similarity(adv_emb, query_emb).cpu().item()
+                        # similarity
+                        adv_sim = torch.mm(adv_emb, query_emb.T).cpu().item()
                                                
                         topk_results.append({'score': adv_sim, 'context': adv_text_list[j]})
                     

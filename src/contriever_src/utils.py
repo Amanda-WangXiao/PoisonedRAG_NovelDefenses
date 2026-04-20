@@ -73,7 +73,8 @@ def load(model_class, dir_path, opt, reset_params=False):
 
     model = model_class(opt_checkpoint)
     model.load_state_dict(state_dict, strict=True)
-    model = model.cuda()
+    device = 'cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu')
+    model = model.to(device)
     step = checkpoint["step"]
     if not reset_params:
         optimizer, scheduler = set_optim(opt_checkpoint, model)

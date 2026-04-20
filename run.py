@@ -4,7 +4,7 @@ def run(test_params):
 
     log_file, log_name = get_log_name(test_params)
 
-    cmd = f"nohup python3 -u main.py \
+    cmd = f"python3 -u main.py \
         --eval_model_code {test_params['eval_model_code']}\
         --eval_dataset {test_params['eval_dataset']}\
         --split {test_params['split']}\
@@ -19,8 +19,7 @@ def run(test_params):
         --repeat_times {test_params['repeat_times']}\
         --M {test_params['M']}\
         --seed {test_params['seed']}\
-        --name {log_name}\
-        > {log_file} &"
+        --name {log_name}"
         
     os.system(cmd)
 
@@ -52,7 +51,7 @@ test_params = {
     'query_results_dir': 'main',
 
     # LLM setting
-    'model_name': 'palm2', 
+    'model_name': 'llama31_8b', 
     'use_truth': False,
     'top_k': 5,
     'gpu_id': 0,

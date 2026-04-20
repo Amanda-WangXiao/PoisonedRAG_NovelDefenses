@@ -71,12 +71,12 @@ class DenseEncoderModel:
                     add_special_tokens=self.add_special_tokens,
                     return_tensors="pt",
                 )
-                qencode = {key: value.cuda() for key, value in qencode.items()}
+                device = next(self.query_encoder.parameters()).device
+                qencode = {key: value.to(device) for key, value in qencode.items()}
                 emb = self.query_encoder(**qencode, normalize=self.norm_query)
                 allemb.append(emb.cpu())
 
         allemb = torch.cat(allemb, dim=0)
-        allemb = allemb.cuda()
         if dist.is_initialized():
             allemb = dist_utils.varsize_gather_nograd(allemb)
         allemb = allemb.cpu().numpy()
@@ -110,12 +110,12 @@ class DenseEncoderModel:
                     add_special_tokens=self.add_special_tokens,
                     return_tensors="pt",
                 )
-                cencode = {key: value.cuda() for key, value in cencode.items()}
+                device = next(self.doc_encoder.parameters()).device
+                cencode = {key: value.to(device) for key, value in cencode.items()}
                 emb = self.doc_encoder(**cencode, normalize=self.norm_doc)
                 allemb.append(emb.cpu())
 
         allemb = torch.cat(allemb, dim=0)
-        allemb = allemb.cuda()
         if dist.is_initialized():
             allemb = dist_utils.varsize_gather_nograd(allemb)
         allemb = allemb.cpu().numpy()
